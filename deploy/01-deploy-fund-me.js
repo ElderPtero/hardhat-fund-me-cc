@@ -1,5 +1,5 @@
 const { network } = require("hardhat")
-const { networkConfig, developmentChains } = require("../helper-hardhat-config")
+const { networkConfig, developmentChains } = require("../helper-hardhat-config") // because we export the module we can use this to acess the file and get the function
 const { verify } = require("../utils/verify")
 require("dotenv").config()
 

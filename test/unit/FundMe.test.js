@@ -8,7 +8,7 @@ const { developmentChains } = require("../../helper-hardhat-config")
           let fundMe
           let mockV3Aggregator
           let deployer
-          const sendValue = ethers.utils.parseEther("1")
+          const sendValue = ethers.parseEther("1")
           beforeEach(async () => {
               // const accounts = await ethers.getSigners()
               // deployer = accounts[0]
@@ -24,7 +24,8 @@ const { developmentChains } = require("../../helper-hardhat-config")
           describe("constructor", function () {
               it("sets the aggregator addresses correctly", async () => {
                   const response = await fundMe.getPriceFeed()
-                  assert.equal(response, mockV3Aggregator.address)
+
+                  assert.equal(response, mockV3Aggregator.target)
               })
           })
 
@@ -58,30 +59,30 @@ const { developmentChains } = require("../../helper-hardhat-config")
               it("withdraws ETH from a single funder", async () => {
                   // Arrange
                   const startingFundMeBalance =
-                      await fundMe.provider.getBalance(fundMe.address)
+                      await ethers.provider.getBalance(fundMe.target)
                   const startingDeployerBalance =
-                      await fundMe.provider.getBalance(deployer)
+                      await ethers.provider.getBalance(deployer)
 
                   // Act
                   const transactionResponse = await fundMe.withdraw()
                   const transactionReceipt = await transactionResponse.wait()
-                  const { gasUsed, effectiveGasPrice } = transactionReceipt
-                  const gasCost = gasUsed.mul(effectiveGasPrice)
+                  const { gasUsed, gasPrice } = transactionReceipt
+                  const gasCost = gasUsed * gasPrice
 
-                  const endingFundMeBalance = await fundMe.provider.getBalance(
-                      fundMe.address
+                  const endingFundMeBalance = await ethers.provider.getBalance(
+                      fundMe.target
                   )
                   const endingDeployerBalance =
-                      await fundMe.provider.getBalance(deployer)
+                      await ethers.provider.getBalance(deployer)
 
                   // Assert
-                  // Maybe clean up to understand the testing
+                  // Maybe clean up to understand the testin
                   assert.equal(endingFundMeBalance, 0)
                   assert.equal(
-                      startingFundMeBalance
-                          .add(startingDeployerBalance)
-                          .toString(),
-                      endingDeployerBalance.add(gasCost).toString()
+                      (
+                          startingFundMeBalance + startingDeployerBalance
+                      ).toString(),
+                      (endingDeployerBalance + gasCost).toString()
                   )
               })
               // this test is overloaded. Ideally we'd split it into multiple tests
@@ -96,31 +97,31 @@ const { developmentChains } = require("../../helper-hardhat-config")
                       await fundMeConnectedContract.fund({ value: sendValue })
                   }
                   const startingFundMeBalance =
-                      await fundMe.provider.getBalance(fundMe.address)
+                      await ethers.provider.getBalance(fundMe.target)
                   const startingDeployerBalance =
-                      await fundMe.provider.getBalance(deployer)
+                      await ethers.provider.getBalance(deployer)
 
                   // Act
                   const transactionResponse = await fundMe.cheaperWithdraw()
                   // Let's comapre gas costs :)
                   // const transactionResponse = await fundMe.withdraw()
                   const transactionReceipt = await transactionResponse.wait()
-                  const { gasUsed, effectiveGasPrice } = transactionReceipt
-                  const withdrawGasCost = gasUsed.mul(effectiveGasPrice)
+                  const { gasUsed, gasPrice } = transactionReceipt
+                  const withdrawGasCost = gasUsed * gasPrice
                   console.log(`GasCost: ${withdrawGasCost}`)
                   console.log(`GasUsed: ${gasUsed}`)
-                  console.log(`GasPrice: ${effectiveGasPrice}`)
-                  const endingFundMeBalance = await fundMe.provider.getBalance(
-                      fundMe.address
+                  console.log(`GasPrice: ${gasPrice}`)
+                  const endingFundMeBalance = await ethers.provider.getBalance(
+                      fundMe.target
                   )
                   const endingDeployerBalance =
-                      await fundMe.provider.getBalance(deployer)
+                      await ethers.provider.getBalance(deployer)
                   // Assert
                   assert.equal(
-                      startingFundMeBalance
-                          .add(startingDeployerBalance)
-                          .toString(),
-                      endingDeployerBalance.add(withdrawGasCost).toString()
+                      (
+                          startingFundMeBalance + startingDeployerBalance
+                      ).toString(),
+                      (endingDeployerBalance + withdrawGasCost).toString()
                   )
                   // Make a getter for storage variables
                   await expect(fundMe.getFunder(0)).to.be.reverted

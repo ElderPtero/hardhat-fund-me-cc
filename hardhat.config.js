@@ -1,6 +1,7 @@
 require("@nomiclabs/hardhat-waffle")
 require("hardhat-gas-reporter")
-require("@nomiclabs/hardhat-etherscan")
+//require("@nomiclabs/hardhat-etherscan")
+require("@nomicfoundation/hardhat-verify")
 require("dotenv").config()
 require("solidity-coverage")
 require("hardhat-deploy")
@@ -36,7 +37,7 @@ module.exports = {
     solidity: {
         compilers: [
             {
-                version: "0.8.7",
+                version: "0.8.8",
             },
             {
                 version: "0.6.6",

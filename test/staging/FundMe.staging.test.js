@@ -7,7 +7,7 @@ developmentChains.includes(network.name)
     : describe("FundMe Staging Tests", function () {
           let deployer
           let fundMe
-          const sendValue = ethers.utils.parseEther("0.1")
+          const sendValue = ethers.parseEther("0.1")
           beforeEach(async () => {
               deployer = (await getNamedAccounts()).deployer
               fundMe = await ethers.getContract("FundMe", deployer)
@@ -19,8 +19,8 @@ developmentChains.includes(network.name)
               const withdrawTxResponse = await fundMe.withdraw()
               await withdrawTxResponse.wait(1)
 
-              const endingFundMeBalance = await fundMe.provider.getBalance(
-                  fundMe.address
+              const endingFundMeBalance = await ethers.provider.getBalance(
+                  fundMe.target
               )
               console.log(
                   endingFundMeBalance.toString() +
